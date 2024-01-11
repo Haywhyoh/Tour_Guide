@@ -2,9 +2,10 @@
 
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity
- * @ORM\Tabe=le(name='users')
+ * @ORM\Table(name="users")
  */
 class User
 {
@@ -16,44 +17,44 @@ class User
     private int|null $id = null;
 
     /**
-     * @ORM\Column(type='string')
+     * @ORM\Column(type="string")
      * @var string
      */
     private $firstName;
 
      /**
-     * @ORM\Column(type='string', nullable=false)
+     * @ORM\Column(type="string", nullable=false)
      * @var string
      */
     private $lastName;
 
      /**
-      * @ORM\Column(type='string', length=60, unique=true, nullable=false, options={"collation":"ascii_general_ci"})
+      * @ORM\Column(type="string", length=60, unique=true, nullable=false, options={"collation":"ascii_general_ci"})
       * @var string
       */
      private $username;
     
      /**
-     * @ORM\Column(type='string', nullable=false)
+     * @ORM\Column(type="string", nullable=false)
      */
     private $passwordHash;
 
      /**
-     * @ORM\Column(type='string')
+     * @ORM\Column(type="string")
      *  @var string
      */
     private $email;
 
      /**
       * @var string 
-     * @ORM\Column(type='string')
+     * @ORM\Column(type="string")
      */
     private $role;
 
     public function __construct()
     {
-        // Initialize the role to 'user' by default
-        $this->role = 'user';
+        // Initialize the role to "user" by default
+        $this->role = "user";
     }
     
     public function getUsername(): string
@@ -88,7 +89,7 @@ class User
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === "admin";
     }
 
     public function setRole(string $role): void
@@ -128,20 +129,21 @@ class User
     public function authenticate(callable $verify_password, string $password) : bool
     {
         //This function should verify a password hash
-        return $verify_password($password, this->passwordHash);
+        return $verify_password($password, $this->passwordHash);
 
     }
 
-    public function saveToDatabase(): void
-    {
-        // Add logic to save user data to the database using Doctrine ORM
-        // For example, use Doctrine's EntityManager to persist the user entity
-        // Consider handling potential errors or exceptions during the database operation
-        
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($this);
-        $entityManager->flush();
-    }
+    // public function saveToDatabase(): void
+    // {
+    //     // Add logic to save user data to the database using Doctrine ORM
+    //     // For example, use Doctrine"s EntityManager to persist the user entity
+    //     // Consider handling potential errors or exceptions during the database operation
+    //         // Define $connectionOptions and $config variables here
+
+    //         $entityManager = EntityManager::create($connectionOptions, $config);
+    //         $entityManager->persist($this);
+    //         $entityManager->flush();
+    // }
 
     public function loadFromDatabase(int $userId): void
     {
