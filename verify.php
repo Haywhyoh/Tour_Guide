@@ -1,13 +1,28 @@
 <?php
-$host = "localhost";
-$dbname = "tour_guide";
-$user = "tour_guide";
-$password = "Mydreams@98";
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $password);
-    echo "Connected successfully!";
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+require_once 'models/user.php';
+
+$demo_user = [
+    'username' => 'temp_user',
+    'password' => 'demo12345',
+    'email' => 'test@gmail.com',
+    'firstName' => 'Test',
+    'lastName' => 'User',
+    'role' => 'user'
+];
+
+$user = new User();
+
+$user->__set('username', $demo_user['username']);
+$user->__set('passwordHash', $demo_user['password']);
+$user->__set('email', $demo_user['email']);
+$user->__set('firstName', $demo_user['firstName']);
+$user->__set('lastName', $demo_user['lastName']);
+$user->__set('role', $demo_user['role']);
+
+$entityManager->persist($user);
+$entityManager->flush();
+
+echo "Created User with ID " . $user->getId() . "\n";
+
 ?>

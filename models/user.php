@@ -30,7 +30,6 @@ class User
     private $lastName;
 
     /**
-     * @ORM\Id
      * @ORM\Column(type="string", length=60, unique=true, nullable=false, options={"collation":"ascii_general_ci"})
      * @var string
      */
@@ -62,9 +61,10 @@ class User
     public function usernameExists(string $username): bool
     {
         // Add logic to check if a username exists in the database
-        // For example, use SQL queries to retrieve user data by username
+        global $entityManager; // Add this line to access the $entityManager variable
         $user = $entityManager->getRepository(User::class)->findBy(['username' => $username]);
         return $user !== null;
+
     }
 
     public function getUsername(): string
@@ -83,11 +83,12 @@ class User
 
     private function setUsername(string $username): void
     {
-        if ($this->usernameExists($username)) {
+        if (!$this->usernameExists($username)) {
             // Handle the case when the username already exists
             throw new \InvalidArgumentException("Username already Exist");
         } else {
             $this->setUsername($username);
+            echo "Username is available";
         }
     }
 
@@ -178,6 +179,9 @@ class User
             if (isset($user['role'])) {
                 $this->setRole($user['role']);
             }
+            // Add the following line to declare and initialize the $entityManager variable
+            global $entityManager; // Add this line to access the $entityManager variable
+
             $entityManager->persist($this);
             $entityManager->flush();
     }
