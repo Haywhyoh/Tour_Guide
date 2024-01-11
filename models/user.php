@@ -1,7 +1,8 @@
 <?php
 
 use Doctrine\ORM\Mapping as ORM;
-
+require_once "bootstrap.php";
+require_once "includes/functions.php";
 
 /**
  * @ORM\Entity
@@ -28,11 +29,12 @@ class User
      */
     private $lastName;
 
-     /**
-      * @ORM\Column(type="string", length=60, unique=true, nullable=false, options={"collation":"ascii_general_ci"})
-      * @var string
-      */
-     private $username;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="string", length=60, unique=true, nullable=false, options={"collation":"ascii_general_ci"})
+     * @var string
+     */
+    private $username;
     
      /**
      * @ORM\Column(type="string", nullable=false)
@@ -57,14 +59,36 @@ class User
         $this->role = "user";
     }
     
+    public function usernameExists(string $username): bool
+    {
+        // Add logic to check if a username exists in the database
+        // For example, use SQL queries to retrieve user data by username
+        $user = $entityManager->getRepository(User::class)->findBy(['username' => $username]);
+        return $user !== null;
+    }
+
     public function getUsername(): string
     {
         return $this->username;
     }
 
-    public function setUsername(string $username): void
+    public function validate(): bool
     {
-        $this->username = $username;
+        // Implement email format validation
+        // Return true if the email is in the right format, false otherwise
+        $email = $this->getEmail();
+        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    private function setUsername(string $username): void
+    {
+        if ($this->usernameExists($username)) {
+            // Handle the case when the username already exists
+            throw new \InvalidArgumentException("Username already Exist");
+        } else {
+            $this->setUsername($username);
+        }
     }
 
     public function getPasswordHash(): string
@@ -72,7 +96,7 @@ class User
         return $this->passwordHash;
     }
 
-    public function setPasswordHash(string $passwordHash): void
+    private function setPasswordHash(string $passwordHash): void
     {
         $this->passwordHash = $passwordHash;
     }
@@ -82,9 +106,14 @@ class User
         return $this->email;
     }
 
-    public function setEmail(string $email): void
+    private function setEmail(string $email): void
     {
-        $this->email = $email;
+        if (!$this->validate()) {
+            // Handle the case when the email is invalid
+            throw new \InvalidArgumentException("Invalid email format.");
+        } else {
+            $this->setEmail($email);
+        }
     }
 
     public function isAdmin(): bool
@@ -92,7 +121,12 @@ class User
         return $this->role === "admin";
     }
 
-    public function setRole(string $role): void
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
+    private function setRole(string $role): void
     {
         $this->role = $role;
     }
@@ -102,7 +136,7 @@ class User
         return $this->firstName;
     }
 
-    public function setFirstName(string $firstName): void
+    private function setFirstName(string $firstName): void
     {
         $this->firstName = $firstName;
     }
@@ -117,14 +151,7 @@ class User
         $this->lastName = $lastName;
     }
 
-    public function validate(): bool
-    {
-        // Implement email format validation
-        // Return true if the email is in the right format, false otherwise
-        $email = $this->getEmail();
-        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-    }
+
 
     public function authenticate(callable $verify_password, string $password) : bool
     {
@@ -133,41 +160,90 @@ class User
 
     }
 
-    // public function saveToDatabase(): void
-    // {
-    //     // Add logic to save user data to the database using Doctrine ORM
-    //     // For example, use Doctrine"s EntityManager to persist the user entity
-    //     // Consider handling potential errors or exceptions during the database operation
-    //         // Define $connectionOptions and $config variables here
 
-    //         $entityManager = EntityManager::create($connectionOptions, $config);
-    //         $entityManager->persist($this);
-    //         $entityManager->flush();
-    // }
+    public function saveToDatabase(array $user): void
+    {
+        // Add logic to save user data to the database using Doctrine ORM
+            $this->setFirstName($user['firstName']);
+            $this->setLastName($user['lastName']);
+            $this->setUsername($user['username']);
+            $this->setEmail($user['email']);
+            if (strlen($user['password']) < 8) {
+                // Handle the case when the password is too short
+                throw new \InvalidArgumentException("Password must be at least 8 characters long.");
+            } else {
+                $this->setPasswordHash(create_hash($user['password']));
+            }
 
-    public function loadFromDatabase(int $userId): void
+            if (isset($user['role'])) {
+                $this->setRole($user['role']);
+            }
+            $entityManager->persist($this);
+            $entityManager->flush();
+    }
+
+    public function loadFromDatabase(string $username): array
     {
         // Add logic to load user data from the database based on the user ID
-        // For example, use SQL queries to retrieve user data by ID
+        $user = $entityManager->getRepository(User::class)->findBy(['username' => $username]);
+        return $user;
     }
 
-    public function __toString(): string
-    {
-        // Add logic to return a string representation of the user object
-        // For example, return a formatted string with user details
-        return "User ID: " . $this->id . ", First Name: " . $this->firstName . ", Last Name: " . $this->lastName;
-    }
+    // public function __toString(): string
+    // {
+    //     // Add logic to return a string representation of the user object
+    //     // For example, return a formatted string with user details
+    //     return "User ID: " . $this->id . ", First Name: " . $this->firstName . ", Last Name: " . $this->lastName;
+    // }
 
     public function __get(string $name)
     {
         // Add logic to handle property retrieval
-        // For example, implement dynamic property retrieval based on the property name
+        switch ($name) {
+            case 'firstName':
+                return $this->getFirstName();
+            case 'lastName':
+                return $this->getLastName();
+            case 'email':
+                return $this->getEmail();
+            case 'username':
+                return $this->getUsername();
+            case 'passwordHash':
+                return $this->getPasswordHash();
+            case 'role':
+                return $this->getRole();
+            default:
+                throw new \InvalidArgumentException("Invalid property name: $name");
+
+        }
     }
 
     public function __set(string $name, $value)
     {
         // Add logic to handle property assignment
         // For example, implement dynamic property assignment based on the property name and value
+        switch ($name) {
+            case 'firstName':
+                $this->setFirstName($value);
+                break;
+            case 'lastName':
+                $this->setLastName($value);
+                break;
+            case 'email':
+                $this->setEmail($value);
+                break;
+            case 'username':
+                $this->setUsername($value);
+                break;
+            case 'passwordHash':
+                $this->setPasswordHash($value);
+                break;
+            case 'role':
+                $this->setRole($value);
+                break;
+            default:
+                throw new \InvalidArgumentException("Invalid property name: $name");
+        }
     }
     
 }
