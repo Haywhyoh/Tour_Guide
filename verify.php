@@ -13,16 +13,14 @@ $demo_user = [
 
 $user = new User();
 
-$user->__set('username', $demo_user['username']);
-$user->__set('passwordHash', $demo_user['password']);
-$user->__set('email', $demo_user['email']);
-$user->__set('firstName', $demo_user['firstName']);
-$user->__set('lastName', $demo_user['lastName']);
-$user->__set('role', $demo_user['role']);
+$user->saveToDatabase($demo_user);
 
-$entityManager->persist($user);
-$entityManager->flush();
+// $user->__set('username', $demo_user['username']);
+// $user->__set('passwordHash', $demo_user['password']);
+// $user->__set('email', $demo_user['email']);
+// $user->__set('firstName', $demo_user['firstName']);
+// $user->__set('lastName', $demo_user['lastName']);
+// $user->__set('role', $demo_user['role']);
 
-echo "Created User with ID " . $user->getId() . "\n";
 
 ?>

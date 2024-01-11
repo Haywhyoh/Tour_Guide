@@ -72,12 +72,11 @@ class User
         return $this->username;
     }
 
-    public function validate(): bool
+    public function validate(string $email): bool
     {
         // Implement email format validation
         // Return true if the email is in the right format, false otherwise
-        $email = $this->getEmail();
-        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+       
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
@@ -87,7 +86,7 @@ class User
             // Handle the case when the username already exists
             throw new \InvalidArgumentException("Username already Exist");
         } else {
-            $this->setUsername($username);
+            $this->username = $username;
             echo "Username is available";
         }
     }
@@ -102,18 +101,18 @@ class User
         $this->passwordHash = $passwordHash;
     }
 
-    public function getEmail(): string
+    public function getEmail(): null
     {
         return $this->email;
     }
 
     private function setEmail(string $email): void
     {
-        if (!$this->validate()) {
+        if (!$this->validate($email)) {
             // Handle the case when the email is invalid
             throw new \InvalidArgumentException("Invalid email format.");
         } else {
-            $this->setEmail($email);
+            $this->email = $email;
         }
     }
 
@@ -179,11 +178,12 @@ class User
             if (isset($user['role'])) {
                 $this->setRole($user['role']);
             }
-            // Add the following line to declare and initialize the $entityManager variable
-            global $entityManager; // Add this line to access the $entityManager variable
+            global $entityManager;
 
             $entityManager->persist($this);
             $entityManager->flush();
+
+            
     }
 
     public function loadFromDatabase(string $username): array
@@ -225,7 +225,6 @@ class User
     public function __set(string $name, $value)
     {
         // Add logic to handle property assignment
-        // For example, implement dynamic property assignment based on the property name and value
         switch ($name) {
             case 'firstName':
                 $this->setFirstName($value);
