@@ -3,11 +3,11 @@
 require_once 'models/user.php';
 
 $demo_user = [
-    'username' => 'temp_user',
+    'username' => 'temp_user_2',
     'password' => 'demo12345',
-    'email' => 'test@gmail.com',
-    'firstName' => 'Test',
-    'lastName' => 'User',
+    'email' => 'test2@gmail.com',
+    'firstName' => 'Test2',
+    'lastName' => 'User2',
     'role' => 'user',
 ];
 
