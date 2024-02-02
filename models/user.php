@@ -88,6 +88,7 @@ class User extends BaseModel
             throw new \InvalidArgumentException("Username already Exist");
         } else {
             $this->username = $username;
+            $this->setDateUpdated(new \DateTime());
             echo "Username is available";
         }
     }
@@ -100,6 +101,7 @@ class User extends BaseModel
     private function setPasswordHash(string $passwordHash): void
     {
         $this->passwordHash = $passwordHash;
+        $this->setDateUpdated(new \DateTime());
     }
 
     public function getEmail(): string
@@ -114,6 +116,7 @@ class User extends BaseModel
             throw new \InvalidArgumentException("Invalid email format.");
         } else {
             $this->email = $email;
+            $this->setDateUpdated(new \DateTime());
         }
     }
 
@@ -130,6 +133,7 @@ class User extends BaseModel
     private function setRole(string $role): void
     {
         $this->role = $role;
+        $this->setDateUpdated(new \DateTime());
     }
 
     public function getFirstName(): string
@@ -140,6 +144,7 @@ class User extends BaseModel
     private function setFirstName(string $firstName): void
     {
         $this->firstName = $firstName;
+        $this->setDateUpdated(new \DateTime());
     }
 
     public function getLastName(): string
@@ -150,6 +155,7 @@ class User extends BaseModel
     public function setLastName(string $lastName): void
     {
         $this->lastName = $lastName;
+        $this->setDateUpdated(new \DateTime());
     }
 
 
@@ -169,6 +175,8 @@ class User extends BaseModel
             $this->setLastName($user['lastName']);
             $this->setUsername($user['username']);
             $this->setEmail($user['email']);
+            $this->setDateCreated(new \DateTime());
+            $this->setDateUpdated(new \DateTime());
             if (strlen($user['password']) < 8) {
                 // Handle the case when the password is too short
                 throw new \InvalidArgumentException("Password must be at least 8 characters long.");
@@ -217,6 +225,10 @@ class User extends BaseModel
                 return $this->getPasswordHash();
             case 'role':
                 return $this->getRole();
+            case 'date_created':
+                return $this->getDateCreated();
+            case 'date_updated':
+                    return $this->getDateUpdated();
             default:
                 throw new \InvalidArgumentException("Invalid property name: $name");
 
