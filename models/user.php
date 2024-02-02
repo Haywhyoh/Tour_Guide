@@ -3,19 +3,20 @@
 use Doctrine\ORM\Mapping as ORM;
 require_once "bootstrap.php";
 require_once "includes/functions.php";
+require_once "base_model.php";
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="users")
  */
-class User
+class User extends BaseModel
 {
-     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
-     */
-    private int|null $id = null;
+    //  /**
+    //  * @ORM\Id
+    //  * @ORM\Column(type="integer")
+    //  * @ORM\GeneratedValue
+    //  */
+    // private int|null $id = null;
 
     /**
      * @ORM\Column(type="string")
@@ -101,7 +102,7 @@ class User
         $this->passwordHash = $passwordHash;
     }
 
-    public function getEmail(): null
+    public function getEmail(): string
     {
         return $this->email;
     }

@@ -17,19 +17,14 @@
 use Doctrine\ORM\Mapping as ORM;
 require_once "bootstrap.php";
 require_once "includes/functions.php";
+require_once "base_model.php";
 
 /**
  * @ORM\Entity
- * @ORM\Table('attractions')
+ * @ORM\Table("attractions")
  */
-class Attraction {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", unique=true, nullable=false)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     */
-    private $id;
+class Attraction extends BaseModel {
+ 
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
